@@ -84,6 +84,7 @@ function RuneInspector:OnDocLoaded()
 		-- Register handlers for events, slash commands and timer, etc.
 		-- e.g. Apollo.RegisterEventHandler("KeyDown", "OnKeyDown", self)
 		Apollo.RegisterSlashCommand("ri", "OnRuneInspectorOn", self)
+		Apollo.RegisterSlashCommand("rigear", "OnRuneInspectorGear", self)
 
 
 		-- Do additional Addon initialization here
@@ -116,6 +117,7 @@ function RuneInspector:GetItemRunes(item)
 	else
 		return nil
 	end
+
 	local retVal = {}
 	retVal["total"] = total
 	retVal["free"] = free
@@ -123,10 +125,9 @@ function RuneInspector:GetItemRunes(item)
 end
 
 function RuneInspector:GetRuneTotals()
-	me=GameLib.GetPlayerUnit()
-	eq=me:GetEquippedItems()
+	local me=GameLib.GetPlayerUnit()
+	local eq=me:GetEquippedItems()
 
-	local perItem ={}
 	local total = {}
 	local free = {}
 
@@ -151,6 +152,27 @@ function RuneInspector:GetRuneTotals()
 	retVal["total"] = total
 	retVal["free"] = free
 	return retVal
+end
+
+-- on SlashCommand "/rigear"
+-- Temporary command to list gear runeslots.
+function RuneInspector:OnRuneInspectorGear()
+	me=GameLib.GetPlayerUnit()
+	eq=me:GetEquippedItems()
+	for key,item in pairs(eq) do
+		local runes = self:GetItemRunes(item)
+		if runes ~= nil then
+			local iTotal = runes["total"]
+			local iFree  = runes["free"]
+			local strRunes = ""
+			for k,v in pairs(iTotal) do
+				if tonumber(v) > 0 then
+					strRunes = strRunes .. " " .. k .. ":" .. v
+				end
+			end
+			Print(item:GetName() .. strRunes)
+		end
+	end
 end
 
 -- on SlashCommand "/ri"
